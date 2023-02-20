@@ -23,8 +23,8 @@ else
     exit 1
 fi
 
- gitleaks detect $code -v
- gitleaks detect $code --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG
+cd $code
+gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG -v
 
 if [ $? -ne 0 ]; then
   if [ "$VALIDATION_FAILURE_ACTION" == "FAILURE" ]
