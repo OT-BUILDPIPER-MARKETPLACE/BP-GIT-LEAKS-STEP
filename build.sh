@@ -14,22 +14,23 @@ logInfoMessage "Executing command"
 logInfoMessage "gitleaks detect $code --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
 logInfoMessage "Validating Git repository for vulnerabilities..."
 
-if [ -d "reports" ]; then
-    true
-else
-    mkdir reports 
-fi
-
 if [ -d $code ];then
    true
 else
-   logInfoMessage "$WORKSPACE/$CODEBASE_DIR: No such file or directory exist"
+    logErrorMessage "$WORKSPACE/$CODEBASE_DIR: No such file or directory exist"
     logErrorMessage "Please check Git repository vulnerabilities scan failed!!!"
     generateOutput $ACTIVITY_SUB_TASK_CODE false "Please check Git repository vulnerabilities scan failed!!!"
     exit 1
 fi
 
 cd $code
+
+if [ -d "reports" ]; then
+    true
+else
+    mkdir reports 
+fi
+
 gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
 
 if [ $? -ne 0 ]; then
