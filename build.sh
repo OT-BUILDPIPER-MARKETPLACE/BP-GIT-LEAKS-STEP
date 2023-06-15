@@ -11,8 +11,14 @@ code="$WORKSPACE/$CODEBASE_DIR"
 logInfoMessage "I'll scan Git repository for vulnerabilities"
 sleep $SLEEP_DURATION
 logInfoMessage "Executing command"
-logInfoMessage "gitleaks detect $code --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG"
+logInfoMessage "gitleaks detect $code --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
 logInfoMessage "Validating Git repository for vulnerabilities..."
+
+if [ -d "reports" ]; then
+    true
+else
+    mkdir reports 
+fi
 
 if [ -d $code ];then
    true
@@ -24,7 +30,7 @@ else
 fi
 
 cd $code
-gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG -v
+gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
 
 if [ $? -ne 0 ]; then
   if [ "$VALIDATION_FAILURE_ACTION" == "FAILURE" ]
