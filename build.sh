@@ -6,7 +6,13 @@ source  str-functions.sh
 source  file-functions.sh
 source  aws-functions.sh
 
-code="$WORKSPACE/$CODEBASE_DIR" 
+# for locally testing
+#mkdir /$1
+#WORKSPACE=$1
+#git clone $2 /$1/code_to_scan
+#CODEBASE_DIR=code_to_scan
+
+code="$WORKSPACE/$CODEBASE_DIR"
 
 logInfoMessage "I'll scan Git repository for vulnerabilities"
 sleep $SLEEP_DURATION
