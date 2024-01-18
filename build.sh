@@ -39,6 +39,8 @@ fi
 
 gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
 
+jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
+
 if [ $? -ne 0 ]; then
   if [ "$VALIDATION_FAILURE_ACTION" == "FAILURE" ]
   then
