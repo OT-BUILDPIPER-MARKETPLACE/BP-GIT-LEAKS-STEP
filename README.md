@@ -10,6 +10,11 @@ git submodule init
 git submodule update
 docker build -t registry.buildpiper.in/gitleaks:0.1 .
 ```
+* Do local testing
+```
+Successful scenario
+docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src registry.buildpiper.in/gitleaks:0.1
+```
 
 
 ## Debug
