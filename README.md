@@ -3,16 +3,17 @@
 Gitleaks is a SAST tool for detecting and preventing hardcoded secrets like passwords, api keys, and tokens in git repos.
 
 ## Setup
-* Clone the code available at [ BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP.git)
+* Clone the code available at [ BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP)
+
 * Build the docker image
 ```
 git submodule init
 git submodule update
 docker build -t registry.buildpiper.in/gitleaks:0.1 .
 ```
+
 * Do local testing
 ```
-Successful scenario
 docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src registry.buildpiper.in/gitleaks:0.1
 ```
 

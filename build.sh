@@ -1,59 +1,61 @@
 #!/bin/bash
 
-source functions.sh
-source mi_functions.sh
-source log-functions.sh
-source str-functions.sh
-source file-functions.sh
-source aws-functions.sh
+source /opt/buildpiper/shell-functions/functions.sh
+source /opt/buildpiper/shell-functions/mi-functions.sh
+source /opt/buildpiper/shell-functions/log-functions.sh
+source /opt/buildpiper/shell-functions/str-functions.sh
+source /opt/buildpiper/shell-functions/file-functions.sh
+source /opt/buildpiper/shell-functions/aws-functions.sh
 
-# for locally testing
-#mkdir /$1
-#WORKSPACE=$1
-#git clone $2 /$1/code_to_scan
-#CODEBASE_DIR=code_to_scan
+TASK_STATUS=0
 
-code="$WORKSPACE/$CODEBASE_DIR"
+function scanCodeForCreds() {
 
-logInfoMessage "I'll scan Git repository for vulnerabilities"
+  logInfoMessage "Below command will be executed"
+  logInfoMessage "gitleaks detect ${CODEBASE_LOCATION} --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
+  logInfoMessage "Validating Git repository for vulnerabilities..."
+
+  cp mi.template ${CODEBASE_LOCATION}
+  cd ${CODEBASE_LOCATION}
+
+  if [ -d "reports" ]; then
+      true
+  else
+      mkdir reports 
+  fi
+
+  gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
+
+  jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
+
+  export base64EncodedResponse=`encodeFileContent reports/cred_scanner.csv`
+  export application=ot-demo-ms
+  export environment=dev-main
+  export service=salary
+  export organization=bp
+  export source_key=gitleaks
+  export report_file_path=null
+
+  generateMIDataJson mi.template gitleaks.mi
+
+  sendMIData gitleaks.mi http://192.168.1.202:9001
+}
+
+CODEBASE_LOCATION="${WORKSPACE}"/"${CODEBASE_DIR}"
+logInfoMessage "I'll scan Git repository for vulnerabilities [$CODEBASE_LOCATION]"
+
 sleep $SLEEP_DURATION
-logInfoMessage "Executing command"
-logInfoMessage "gitleaks detect $code --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
-logInfoMessage "Validating Git repository for vulnerabilities..."
 
-if [ -d $code ];then
+if [ -d ${CODEBASE_LOCATION} ];then
    true
 else
-    logErrorMessage "$WORKSPACE/$CODEBASE_DIR: No such file or directory exist"
+    logErrorMessage "${CODEBASE_LOCATION}: No such file or directory exist"
     logErrorMessage "Please check Git repository vulnerabilities scan failed!!!"
     generateOutput $ACTIVITY_SUB_TASK_CODE false "Please check Git repository vulnerabilities scan failed!!!"
-    exit 1
+    TASK_STATUS=1
 fi
 
-cp mi.template $code
-cd $code
 
-if [ -d "reports" ]; then
-    true
-else
-    mkdir reports 
-fi
-
-gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
-
-jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
-
-export base64EncodedResponse=`encodeFileContent reports/cred_scanner.csv`
-export application=ot-demo-ms
-export environment=dev-main
-export service=salary
-export organization=bp
-export source_key=gitleaks
-export report_file_path=null
-
-generateReportJson mi.template gitleaks.mi
-
-sendMIData gitleaks.mi http://192.168.1.202:9001
 if [ $? -ne 0 ]; then
   if [ "$VALIDATION_FAILURE_ACTION" == "FAILURE" ]
   then
