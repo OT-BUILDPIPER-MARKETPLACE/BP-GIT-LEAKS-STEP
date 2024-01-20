@@ -17,9 +17,8 @@ docker build -t registry.buildpiper.in/gitleaks:0.1 .
 docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src registry.buildpiper.in/gitleaks:0.1
 ```
 
-
 ## Debug
-docker run -it --rm -v $PWD:/src --entrypoint bash registry.buildpiper.in/gitleaks:0.1 
+docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src --entrypoint bash registry.buildpiper.in/gitleaks:0.1 
 
 
 #Cred scanning AWS_ACCESS_KEY_ID=ASIAIOSFODNN7EXAMPLE AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY

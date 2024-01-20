@@ -5,8 +5,7 @@ RUN apk add --no-cache --upgrade bash \
     && apk add gettext libintl curl
 COPY build.sh .
 COPY mi.template .
-COPY mi_functions.sh .
-COPY BP-BASE-SHELL-STEPS .
+ADD BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
 RUN chmod +x build.sh
 ENV ACTIVITY_SUB_TASK_CODE BP-GIT-LEAKS-TASK
 ENV FORMAT_ARG json
