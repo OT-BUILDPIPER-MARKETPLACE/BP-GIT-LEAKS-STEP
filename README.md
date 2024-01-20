@@ -8,4 +8,12 @@ Gitleaks is a SAST tool for detecting and preventing hardcoded secrets like pass
 ```
 git submodule init
 git submodule update
-docker build -t ot/gitleaks:0.1 .
+docker build -t registry.buildpiper.in/gitleaks:0.1 .
+```
+
+
+## Debug
+docker run -it --rm -v $PWD:/src --entrypoint bash registry.buildpiper.in/gitleaks:0.1 
+
+
+#Cred scanning AWS_ACCESS_KEY_ID=ASIAIOSFODNN7EXAMPLE AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
