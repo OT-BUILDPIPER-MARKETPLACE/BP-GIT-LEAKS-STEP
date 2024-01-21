@@ -55,20 +55,3 @@ else
 fi
 
 saveTaskStatus ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE}
-
-# if [ $? -ne 0 ]; then
-#   if [ "$VALIDATION_FAILURE_ACTION" == "FAILURE" ]
-#   then
-#     logErrorMessage "$CODEBASE_DIR: Vulnerabilities found in the Git repository."
-#     logErrorMessage "Please check Git repository vulnerabilities scan failed!!!"
-#     generateOutput $ACTIVITY_SUB_TASK_CODE false "Please check Git repository vulnerabilities scan failed!!!"
-#     exit 1
-#   else
-#     logErrorMessage "$CODEBASE_DIR: Vulnerabilities found in the Git repository."
-#     logWarningMessage "Please check Git repository vulnerabilities scan failed!!!"
-#     generateOutput $ACTIVITY_SUB_TASK_CODE true "Please check Git repository vulnerabilities scan failed!!!"
-#   fi
-# else
-#   logInfoMessage "$CODEBASE_DIR: Git repository is secure."
-#   logInfoMessage "Congratulations Git repository vulnerabilities scan succeeded!!!"
-# fi
