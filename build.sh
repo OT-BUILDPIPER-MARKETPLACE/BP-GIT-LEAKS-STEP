@@ -29,8 +29,8 @@ function scanCodeForCreds() {
 
   export base64EncodedResponse=`encodeFileContent reports/cred_scanner.csv`
   export application=ot-demo-ms
-  export environment=dev-main
-  export service=salary
+  export environment=`getProjectEnv`
+  export service=`getServiceName`
   export organization=bp
   export source_key=gitleak
   export report_file_path=null
