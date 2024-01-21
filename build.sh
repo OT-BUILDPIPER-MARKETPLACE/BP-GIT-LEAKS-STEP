@@ -37,7 +37,7 @@ function scanCodeForCreds() {
 
   generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
   cat gitleaks.mi
-  sendMIData gitleaks.mi http://122.160.30.218:60901/
+  sendMIData gitleaks.mi http://122.160.30.218:60901
 }
 
 CODEBASE_LOCATION="${WORKSPACE}"/"${CODEBASE_DIR}"
