@@ -4,7 +4,6 @@ RUN apk add --no-cache --upgrade bash \
     && apk add jq \
     && apk add gettext libintl curl
 COPY build.sh .
-COPY mi.template .
 ADD BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
 ADD BP-BASE-SHELL-STEPS/data /opt/buildpiper/data
 RUN chmod +x build.sh
