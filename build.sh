@@ -32,7 +32,7 @@ function scanCodeForCreds() {
   export environment=dev-main
   export service=salary
   export organization=bp
-  export source_key=gitleaks
+  export source_key=gitleak
   export report_file_path=null
 
   generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
