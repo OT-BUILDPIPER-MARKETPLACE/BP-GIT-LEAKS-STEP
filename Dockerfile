@@ -6,6 +6,7 @@ RUN apk add --no-cache --upgrade bash \
 COPY build.sh .
 COPY mi.template .
 ADD BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
+ADD BP-BASE-SHELL-STEPS/data /opt/buildpiper/data
 RUN chmod +x build.sh
 ENV ACTIVITY_SUB_TASK_CODE BP-GIT-LEAKS-TASK
 ENV FORMAT_ARG json

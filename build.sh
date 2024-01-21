@@ -15,7 +15,6 @@ function scanCodeForCreds() {
   logInfoMessage "gitleaks detect ${CODEBASE_LOCATION} --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
   logInfoMessage "Validating Git repository for vulnerabilities..."
 
-  cp mi.template ${CODEBASE_LOCATION}
   cd ${CODEBASE_LOCATION}
 
   if [ -d "reports" ]; then
@@ -36,7 +35,7 @@ function scanCodeForCreds() {
   export source_key=gitleaks
   export report_file_path=null
 
-  generateMIDataJson mi.template gitleaks.mi
+  generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
   cat gitleaks.mi
   sendMIData gitleaks.mi http://122.160.30.218:60901/
 }
