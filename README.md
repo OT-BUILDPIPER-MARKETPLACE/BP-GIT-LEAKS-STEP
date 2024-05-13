@@ -18,7 +18,8 @@ docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src registry.bui
 ```
 
 ## Debug
-docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src --entrypoint bash registry.buildpiper.in/gitleaks:0.1 
+```docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src -e APPLICATION_NAME=<application_name> -e ORGANIZATION=<organization_name> -e SOURCE_KEY=<source_key> -e REPORT_FILE_PATH=<report_file_path> -e MI_SERVER_ADDRESS=<mi_server_address> --entrypoint bash registry.buildpiper.in/gitleaks:0.1
+```
 
 
 #Cred scanning AWS_ACCESS_KEY_ID=ASIAIOSFODNN7EXAMPLE AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
