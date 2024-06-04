@@ -27,6 +27,12 @@ function scanCodeForCreds() {
   TASK_STATUS=$?
   jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
 
+# add data to reports/cred_scanner.csv if no leaks in code found
+  if [ ! -s reports/cred_scanner.csv ] || [ "$(cat reports/cred_scanner.csv | tr -d '[:space:]')" = "" ]; then
+      echo "no-leaks" > reports/cred_scanner.csv
+      echo "0" >> reports/cred_scanner.csv
+  fi
+
   export base64EncodedResponse=`encodeFileContent reports/cred_scanner.csv`
   export application=$APPLICATION_NAME
   export environment=`getProjectEnv`
