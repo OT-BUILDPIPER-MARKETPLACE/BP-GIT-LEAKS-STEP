@@ -6,6 +6,7 @@ source /opt/buildpiper/shell-functions/log-functions.sh
 source /opt/buildpiper/shell-functions/str-functions.sh
 source /opt/buildpiper/shell-functions/file-functions.sh
 source /opt/buildpiper/shell-functions/aws-functions.sh
+source /opt/buildpiper/shell-functions/getDataFile.sh
 
 TASK_STATUS=0
 
@@ -27,13 +28,31 @@ function scanCodeForCreds() {
   TASK_STATUS=$?
   jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
 
-# add data to reports/cred_scanner.csv if no leaks in code found
+  # add data to reports/cred_scanner.csv if no leaks in code found
   if [ ! -s reports/cred_scanner.csv ] || [ "$(cat reports/cred_scanner.csv | tr -d '[:space:]')" = "" ]; then
       echo "no-leaks" > reports/cred_scanner.csv
       echo "0" >> reports/cred_scanner.csv
   fi
 
-  export base64EncodedResponse=`encodeFileContent reports/cred_scanner.csv`
+  cat reports/cred_scanner.csv
+
+  # cred_scanner="reports/cred_scanner.csv"
+
+  # Read the first line as the filename
+  cred_scanner=$(head -n 1 "reports/cred_scanner.csv")
+
+  # Read the second line and calculate the sum
+  sum=$(tail -n +2 "reports/cred_scanner.csv" | tr ',' '\n' | awk '{sum+=$1} END {print sum}')
+
+  # Create a new CSV file with the sum
+  echo "$cred_scanner" > "reports/${cred_scanner}_sum.csv"
+  echo "$sum" >> "reports/${cred_scanner}_sum.csv"
+
+  logInfoMessage "Sum has been saved to reports/${cred_scanner}_sum.csv"
+  # csv=$(print_csv "reports/${cred_scanner}_sum.csv")
+  cat reports/${cred_scanner}_sum.csv
+
+  export base64EncodedResponse=`encodeFileContent reports/${cred_scanner}_sum.csv`
   export application=$APPLICATION_NAME
   export environment=`getProjectEnv`
   export service=`getServiceName`

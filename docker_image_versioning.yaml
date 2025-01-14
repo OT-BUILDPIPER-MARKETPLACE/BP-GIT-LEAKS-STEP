@@ -1,0 +1,3 @@
+versioning:
+  - version: "0.7.3"
+    image: "registry.buildpiper.in/okts/gitleaks-scan:0.7.3"

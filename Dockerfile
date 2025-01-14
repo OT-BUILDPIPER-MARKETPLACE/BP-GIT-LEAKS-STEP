@@ -2,7 +2,7 @@ FROM zricethezav/gitleaks:v8.18.1
 USER root
 RUN apk add --no-cache --upgrade bash \
     && apk add jq \
-    && apk add gettext libintl curl
+    && apk add gettext libintl curl perl
 COPY build.sh .
 ADD BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
 ADD BP-BASE-SHELL-STEPS/data /opt/buildpiper/data
@@ -11,7 +11,7 @@ RUN chmod +x build.sh
 ENV APPLICATION_NAME ""
 ENV ORGANIZATION ""
 ENV SOURCE_KEY ""
-ENV REPORT_FILE_PATH ""
+ENV REPORT_FILE_PATH null
 
 ENV MI_SERVER_ADDRESS ""
 

@@ -9,7 +9,7 @@ Gitleaks is a SAST tool for detecting and preventing hardcoded secrets like pass
 ```
 git submodule init
 git submodule update
-docker build -t registry.buildpiper.in/gitleaks:0.1 .
+docker build -t registry.buildpiper.in/okts/gitleaks-scan:0.1 .
 ```
 
 * Do local testing
@@ -18,7 +18,7 @@ docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src registry.bui
 ```
 
 ## Debug
-```docker run -it --rm -v $PWD:/src -e WORKSPACE=/ -e CODEBASE_DIR=src -e APPLICATION_NAME=<application_name> -e ORGANIZATION=<organization_name> -e SOURCE_KEY=<source_key> -e REPORT_FILE_PATH=<report_file_path> -e MI_SERVER_ADDRESS=<mi_server_address> --entrypoint bash registry.buildpiper.in/gitleaks:0.1
+```docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e APPLICATION_NAME=<application_name> -e ORGANIZATION=<organization_name> -e SOURCE_KEY=<source_key> -e REPORT_FILE_PATH=<report_file_path> -e MI_SERVER_ADDRESS=<mi_server_address> --entrypoint bash registry.buildpiper.in/gitleaks:0.1
 ```
 
 
