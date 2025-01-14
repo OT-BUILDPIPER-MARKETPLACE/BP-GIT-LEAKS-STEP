@@ -30,7 +30,7 @@
    **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
 
 - **Improved Git Repository Scanning:**
-    - Enhanced the credential scanning logic by generating a CSV report (`cred_scanner.csv`) and adding a summary file (`${cred_scanner}_sum.csv`) that includes the total count of leaks.
+    - Enhanced the credential scanning logic by generating a CSV report (`cred_scanner.csv`) and adding a summary file (`${cred_scanner}_sum.csv`) that includes fix.
     - Ensured that the `cred_scanner.csv` file always contains either the leak data or a "no-leaks" message.
         
 - **Integration with MI Reporting:**
