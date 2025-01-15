@@ -1,6 +1,6 @@
 ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.3-mi`**
 ---
-**Version:** `0.3-mi`  
+**Version:** `0.3-mi`   
 **Release Date:** *null*  
 **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
 ### Added
@@ -18,7 +18,7 @@
 ---
 ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.3`**
 ---
-**Version:** `0.7.3`
+**Version:** `0.7.3`    
 **Release Date:** *15-01-2025*  
 **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
 
@@ -35,13 +35,9 @@
 - **Bug Fixes:**
     - Fixed issues with report formatting for compatibility with downstream tools.
 
-Here's an example of a change log for the new version `0.7.4` of the `gitleaks-scan` image:
-
----
-
 ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.4`**
 ---
-**Version:** `0.7.4`
+**Version:** `0.7.4`    
 **Release Date:** *15-01-2025*  
 **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
 
@@ -67,17 +63,6 @@ Here's an example of a change log for the new version `0.7.4` of the `gitleaks-s
 
 - **Better file handling**:  
   Permissions on the `build.sh` script are ensured to be executable during the build process.
-
-### **Bug Fixes:**
-- **No changes for this release**:  
-  No reported bugs to address in this release.
-
-### **Miscellaneous:**
-- **Dependency Updates**:  
-  Updated the `apk` dependencies for `bash`, `jq`, `curl`, and others to the latest versions.
-  
-- **Dockerfile optimization**:  
-  Improved Dockerfile structure by reducing the number of layers and cleaning up unnecessary files.
 
 ---
 
