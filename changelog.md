@@ -1,33 +1,26 @@
-   ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.3-mi`**
-
-   ---
-
-   **Version:** `0.3-mi`  
-   **Release Date:** *null*  
-   **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
-
-   ### Added
-   - Initial script to scan Git repositories for credentials using Gitleaks.
-   - Logging integration with logInfoMessage and logErrorMessage for better visibility.
-   - Automatic creation of reports directory if it doesn't exist.
-   - Execution of Gitleaks with customizable report format and output path.
-   - Aggregation of scan results by RuleID and exporting to cred_scanner.csv.
-   - Handling of empty scan results by adding no-leaks to the report.
-   - Base64 encoding of the scan report for data transmission.
-   - Metadata integration for application, environment, service, organization, and source key.
-   - Generation and sending of MI data to the specified MI server.
-   - Error handling when the codebase directory does not exist.
-   - Task status management and reporting using saveTaskStatus.
-
-   ---
-
-   ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.3`**
-
-   ---
-
-   **Version:** `0.7.3`
-   **Release Date:** *15-01-2025*  
-   **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.3-mi`**
+---
+**Version:** `0.3-mi`  
+**Release Date:** *null*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+### Added
+- Initial script to scan Git repositories for credentials using Gitleaks.
+- Logging integration with logInfoMessage and logErrorMessage for better visibility.
+- Automatic creation of reports directory if it doesn't exist.
+- Execution of Gitleaks with customizable report format and output path.
+- Aggregation of scan results by RuleID and exporting to cred_scanner.csv.
+- Handling of empty scan results by adding no-leaks to the report.
+- Base64 encoding of the scan report for data transmission.
+- Metadata integration for application, environment, service, organization, and source key.
+- Generation and sending of MI data to the specified MI server.
+- Error handling when the codebase directory does not exist.
+- Task status management and reporting using saveTaskStatus.
+---
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.3`**
+---
+**Version:** `0.7.3`
+**Release Date:** *15-01-2025*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
 
 - **Improved Git Repository Scanning:**
     - Enhanced the credential scanning logic by generating a CSV report (`cred_scanner.csv`) and adding a summary file (`${cred_scanner}_sum.csv`) that includes the total count of leaks.
@@ -42,6 +35,50 @@
 - **Bug Fixes:**
     - Fixed issues with report formatting for compatibility with downstream tools.
 
-    ---
+Here's an example of a change log for the new version `0.7.4` of the `gitleaks-scan` image:
 
-   **"For any issues or feature requests, please add them to our repository's issue tracker: [BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP)."**
+---
+
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.4`**
+---
+**Version:** `0.7.4`
+**Release Date:** *15-01-2025*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+### **New Features:**
+- **Added tty-table for formatted report display**:  
+  Now displays the Gitleaks scan results in a table format using `tty-table`. This allows for a more readable and visually appealing output.  
+  *Note: Requires Node.js and npm. To install `tty-table`, run: `npm install -g tty-table`.*
+  ```Dockerfile
+  RUN apk add --no-cache --upgrade \
+    bash jq gettext libintl curl nodejs npm && \
+    npm install -g tty-table && \
+    rm -rf /var/cache/apk/*
+    ```
+
+  ![attachments/csv_view.png](attachments/csv_view.png)
+
+### **Improvements:**
+- **Reduced Docker image size**:  
+  Combined package installations and cleanup steps into a single `RUN` command, optimizing the overall size of the Docker image.
+  
+- **Simplified environment variable setup**:  
+  Set default values for important environment variables like `APPLICATION_NAME`, `ORGANIZATION`, `SOURCE_KEY`, `REPORT_FILE_PATH`, `FORMAT_ARG`, `OUTPUT_ARG` etc. for ease of use and customization at runtime.
+
+- **Better file handling**:  
+  Permissions on the `build.sh` script are ensured to be executable during the build process.
+
+### **Bug Fixes:**
+- **No changes for this release**:  
+  No reported bugs to address in this release.
+
+### **Miscellaneous:**
+- **Dependency Updates**:  
+  Updated the `apk` dependencies for `bash`, `jq`, `curl`, and others to the latest versions.
+  
+- **Dockerfile optimization**:  
+  Improved Dockerfile structure by reducing the number of layers and cleaning up unnecessary files.
+
+---
+
+**"For any issues or feature requests, please add them to our repository's issue tracker: [BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP)."**

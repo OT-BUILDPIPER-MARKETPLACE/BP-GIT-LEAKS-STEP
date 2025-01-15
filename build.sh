@@ -25,6 +25,7 @@ function scanCodeForCreds() {
   fi
 
   gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
+  
   TASK_STATUS=$?
   jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
 
@@ -34,25 +35,35 @@ function scanCodeForCreds() {
       echo "0" >> reports/cred_scanner.csv
   fi
 
-  cat reports/cred_scanner.csv
+  # Display the original CSV 
+  #   NOTE: The script uses 'tty-table' for table formatting. 
+  #   - Install Node.js and npm if not already installed.
+  #   - Install tty-table using: npm install -g tty-table
+  logInfoMessage "Displaying Original Report: reports/cred_scanner.csv"
+  echo "================================================================================"
+  cat reports/cred_scanner.csv | tty-table.
+  echo "================================================================================"
 
-  # cred_scanner="reports/cred_scanner.csv"
+  # Read and process the CSV
+  logInfoMessage "Calculating the total number of leaks from reports/cred_scanner.csv..."
 
-  # Read the first line as the filename
-  cred_scanner=$(head -n 1 "reports/cred_scanner.csv")
-
-  # Read the second line and calculate the sum
+  # Calculate the sum
   sum=$(tail -n +2 "reports/cred_scanner.csv" | tr ',' '\n' | awk '{sum+=$1} END {print sum}')
+  
+  # Create a new CSV with the sum
+  echo "total_leaks" > "reports/cred_scanner_sum.csv"
+  echo "$sum" >> "reports/cred_scanner_sum.csv"
+  
+  logInfoMessage "Total leaks calculated: $sum"
+  logInfoMessage "Sum has been saved to reports/cred_scanner_sum.csv"
+  
+  # Display the summary CSV
+  logInfoMessage "Displaying Leak Summary Report: reports/cred_scanner_sum.csv"
+  echo "================================================================================"
+  cat reports/cred_scanner_sum.csv | tty-table
+  echo "================================================================================"
 
-  # Create a new CSV file with the sum
-  echo "$cred_scanner" > "reports/${cred_scanner}_sum.csv"
-  echo "$sum" >> "reports/${cred_scanner}_sum.csv"
-
-  logInfoMessage "Sum has been saved to reports/${cred_scanner}_sum.csv"
-  # csv=$(print_csv "reports/${cred_scanner}_sum.csv")
-  cat reports/${cred_scanner}_sum.csv
-
-  export base64EncodedResponse=`encodeFileContent reports/${cred_scanner}_sum.csv`
+  export base64EncodedResponse=`encodeFileContent reports/cred_scanner_sum.csv`
   export application=$APPLICATION_NAME
   export environment=`getProjectEnv`
   export service=`getServiceName`
