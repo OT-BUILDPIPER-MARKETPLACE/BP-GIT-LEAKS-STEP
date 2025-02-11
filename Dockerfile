@@ -1,4 +1,4 @@
-FROM zricethezav/gitleaks:v8.18.1
+FROM zricethezav/gitleaks:v8.23.3
 USER root
 
 # Install dependencies in a single RUN layer to reduce image size
@@ -6,6 +6,8 @@ RUN apk add --no-cache --upgrade \
     bash jq gettext libintl curl nodejs npm && \
     npm install -g tty-table && \
     rm -rf /var/cache/apk/*
+
+RUN gitleaks version
 
 COPY build.sh .
 ADD BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
