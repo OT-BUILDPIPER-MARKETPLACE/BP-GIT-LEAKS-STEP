@@ -9,30 +9,47 @@ source /opt/buildpiper/shell-functions/aws-functions.sh
 source /opt/buildpiper/shell-functions/getDataFile.sh
 
 TASK_STATUS=0
+MAX_COMMITS=${MAX_COMMITS:-0}  # Default to scanning all commits if not set
+BUILD_ENVIRONMENT_PROJECT_NAME=`getProjectEnv`
+BUILD_COMPONENT_NAME=`getServiceName`
 
 function scanCodeForCreds() {
 
-  logInfoMessage "Below command will be executed"
-  logInfoMessage "gitleaks detect ${CODEBASE_LOCATION} --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
+  # logInfoMessage "Below command will be executed"
+  # logInfoMessage "gitleaks detect ${CODEBASE_LOCATION} --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
   logInfoMessage "Validating Git repository for vulnerabilities..."
 
-  cd ${CODEBASE_LOCATION}
+  cd ${CODEBASE_LOCATION} || {
+  logErrorMessage "${CODEBASE_LOCATION}: No such directory exists"
+  exit 1
+  }
 
-  if [ -d "reports" ]; then
-      true
-  else
-      mkdir reports 
+  [ -d "reports" ] || mkdir reports
+
+  if [[ $MAX_COMMITS -gt 0 ]]; then
+    COMMIT_HASH=$(git rev-parse HEAD~$MAX_COMMITS 2>/dev/null)
+    if [[ -z "$COMMIT_HASH" ]]; then
+      logErrorMessage "Invalid commit range. Scanning full repository."
+      COMMIT_HASH=""
+    else
+      logInfoMessage "Scanning the last $MAX_COMMITS commits from $COMMIT_HASH"
+    fi
   fi
 
-  gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
+  GITLEAKS_CMD="gitleaks detect --verbose --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
+  [[ -n "$COMMIT_HASH" ]] && GITLEAKS_CMD+=" --commit-from $COMMIT_HASH"
+
+  # gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
   
+  logInfoMessage "Executing: $GITLEAKS_CMD"
+  eval "$GITLEAKS_CMD"
   TASK_STATUS=$?
+
   jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
 
-  # add data to reports/cred_scanner.csv if no leaks in code found
-  if [ ! -s reports/cred_scanner.csv ] || [ "$(cat reports/cred_scanner.csv | tr -d '[:space:]')" = "" ]; then
-      echo "no-leaks" > reports/cred_scanner.csv
-      echo "0" >> reports/cred_scanner.csv
+  if [ ! -s reports/cred_scanner.csv ] || [ -z "$(cat reports/cred_scanner.csv | tr -d '[:space:]')" ]; then
+    echo "no-leaks" > reports/cred_scanner.csv
+    echo "0" >> reports/cred_scanner.csv
   fi
 
   # Display the original CSV 
@@ -41,7 +58,7 @@ function scanCodeForCreds() {
   #   - Install tty-table using: npm install -g tty-table
   logInfoMessage "Displaying Original Report: reports/cred_scanner.csv"
   echo "================================================================================"
-  cat reports/cred_scanner.csv | tty-table.
+  cat reports/cred_scanner.csv | tty-table
   echo "================================================================================"
 
   # Read and process the CSV
@@ -49,7 +66,7 @@ function scanCodeForCreds() {
 
   # Calculate the sum
   sum=$(tail -n +2 "reports/cred_scanner.csv" | tr ',' '\n' | awk '{sum+=$1} END {print sum}')
-  
+
   # Create a new CSV with the sum
   echo "total_leaks" > "reports/cred_scanner_sum.csv"
   echo "$sum" >> "reports/cred_scanner_sum.csv"
@@ -65,8 +82,8 @@ function scanCodeForCreds() {
 
   export base64EncodedResponse=`encodeFileContent reports/cred_scanner_sum.csv`
   export application=$APPLICATION_NAME
-  export environment=`getProjectEnv`
-  export service=`getServiceName`
+  export environment=$BUILD_ENVIRONMENT_PROJECT_NAME
+  export service=$BUILD_COMPONENT_NAME
   export organization=$ORGANIZATION
   export source_key=$SOURCE_KEY
   export report_file_path=$REPORT_FILE_PATH
