@@ -12,6 +12,7 @@ TASK_STATUS=0
 MAX_COMMITS=${MAX_COMMITS:-0}  # Default to scanning all commits if not set
 BUILD_ENVIRONMENT_PROJECT_NAME=`getProjectEnv`
 BUILD_COMPONENT_NAME=`getServiceName`
+REPO_CLONE_DEPTH=`getRepoCloneDepth`
 
 function scanCodeForCreds() {
 
@@ -27,7 +28,13 @@ function scanCodeForCreds() {
   [ -d "reports" ] || mkdir reports
 
   if [[ $MAX_COMMITS -gt 0 ]]; then
+    if [[ -n "$REPO_CLONE_DEPTH" && "$REPO_CLONE_DEPTH" -lt "$MAX_COMMITS" ]]; then
+      logWarningMessage "REPO_CLONE_DEPTH ($REPO_CLONE_DEPTH) is less than MAX_COMMITS ($MAX_COMMITS). Adjusting to scan within available history."
+      MAX_COMMITS=$REPO_CLONE_DEPTH
+    fi
+
     COMMIT_HASH=$(git rev-parse HEAD~$MAX_COMMITS 2>/dev/null)
+    
     if [[ -z "$COMMIT_HASH" ]]; then
       logErrorMessage "Invalid commit range. Scanning full repository."
       COMMIT_HASH=""
@@ -37,9 +44,7 @@ function scanCodeForCreds() {
   fi
 
   GITLEAKS_CMD="gitleaks detect --verbose --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
-  [[ -n "$COMMIT_HASH" ]] && GITLEAKS_CMD+=" --commit-from $COMMIT_HASH"
-
-  # gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
+  [[ -n "$COMMIT_HASH" ]] && GITLEAKS_CMD+=" --log-opts=\"--since=$COMMIT_HASH\""
   
   logInfoMessage "Executing: $GITLEAKS_CMD"
   eval "$GITLEAKS_CMD"
