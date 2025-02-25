@@ -45,6 +45,7 @@
 - **Added tty-table for formatted report display**:  
   Now displays the Gitleaks scan results in a table format using `tty-table`. This allows for a more readable and visually appealing output.  
   *Note: Requires Node.js and npm. To install `tty-table`, run: `npm install -g tty-table`.*
+
   ```Dockerfile
   RUN apk add --no-cache --upgrade \
     bash jq gettext libintl curl nodejs npm && \
@@ -55,7 +56,8 @@
   ![attachments/csv_view.png](attachments/csv_view.png)
 
 ### **Improvements:**
-- **Reduced Docker image size**:  
+
+- **Reduced Docker image size**:
   Combined package installations and cleanup steps into a single `RUN` command, optimizing the overall size of the Docker image.
   
 - **Simplified environment variable setup**:  

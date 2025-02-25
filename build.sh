@@ -41,7 +41,7 @@ function scanCodeForCreds() {
   #   - Install tty-table using: npm install -g tty-table
   logInfoMessage "Displaying Original Report: reports/cred_scanner.csv"
   echo "================================================================================"
-  cat reports/cred_scanner.csv | tty-table.
+  cat reports/cred_scanner.csv | tty-table
   echo "================================================================================"
 
   # Read and process the CSV
