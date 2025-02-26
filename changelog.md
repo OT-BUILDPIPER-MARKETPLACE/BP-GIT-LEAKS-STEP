@@ -143,6 +143,47 @@
 
 - **Refactored Environment Variable Management**  
   - Simplified variable structure for improved readability and maintainability.  
-  - Set defaults for key environment variables used in the scan process.  
+  - Set defaults for key environment variables used in the scan process.
+
+---
+
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.7`**  
+
+**Version:** `0.7.7`  
+**Release Date:** *27-02-2025*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*  
+
+---
+
+### **New Updates & Enhancements:**  
+
+- **Enhanced Secret Detection with Redaction**  
+  - The `gitleaks` command has been updated to include **redaction sensitivity** at a **90% threshold**.  
+  - This helps mask sensitive data in reports while maintaining detection accuracy.  
+
+  **Updated Command:**
+
+  ```sh
+  gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v --redact=90
+  ```
+
+  **Previous Command:**
+
+  ```sh
+  gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v
+  ```
+
+---
+
+### **Improvements:**
+
+- **Better Compliance & Security**  
+  - The `--redact=90` flag ensures that **high-confidence secrets** are redacted in reports, reducing exposure risks.  
+  - Aligns with best practices for secret scanning and compliance with security policies.  
+
+- **Optimized Reporting Output**  
+  - Ensures sensitive information is properly masked while still providing actionable insights.  
+
+---
 
 **"For any issues or feature requests, please add them to our repository's issue tracker: [BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP)."**
