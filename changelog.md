@@ -112,4 +112,37 @@
 
 ---
 
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.6`**  
+
+---
+**Version:** `0.7.6`  
+**Release Date:** *26-02-2025*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*  
+
+### **New Features & Updates:**
+
+- **Upgraded Base Image**  
+  - Updated from `zricethezav/gitleaks:latest` to the latest available version.  
+  - Removed `root` dependency from image.
+  - Ensures compatibility with recent security patches and enhancements.  
+
+- **Improved Python-based Report Formatting**  
+  - The Python virtual environment is now used for managing dependencies.  
+  - `tabulate` package is installed within a dedicated virtual environment for better isolation.  
+
+  ```Dockerfile
+  RUN python3 -m venv /opt/venv && \
+      /opt/venv/bin/pip install --no-cache-dir tabulate
+  ```
+
+- **Optimized File Structure & Permissions**  
+  - Updated the file copy locations for better organization:  
+    - `BP-BASE-SHELL-STEPS` now resides in `/opt/buildpiper/shell-functions/`.  
+    - `BP-BASE-SHELL-STEPS/data` is moved to `/opt/buildpiper/data`.  
+  - Ensured correct execution permissions for scripts.  
+
+- **Refactored Environment Variable Management**  
+  - Simplified variable structure for improved readability and maintainability.  
+  - Set defaults for key environment variables used in the scan process.  
+
 **"For any issues or feature requests, please add them to our repository's issue tracker: [BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP)."**
