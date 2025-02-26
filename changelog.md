@@ -76,4 +76,40 @@
 
 ---
 
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.5`**  
+
+---
+**Version:** `0.7.5`  
+**Release Date:** *26-02-2025*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*  
+
+### **New Features:**
+
+- **Replaced `tty-table` with a Python-based solution for report formatting**  
+  - The dependency on Node.js and `tty-table` has been completely removed.  
+  - Introduced a Python script (`print_table.py`) to handle CSV-based report formatting, improving compatibility and reducing unnecessary dependencies.  
+
+  ```Dockerfile
+  RUN apk add --no-cache --upgrade \
+    bash jq gettext libintl curl python3 py3-pip && \
+    pip install tabulate && \
+    rm -rf /var/cache/apk/*
+  ```
+
+### **Improvements:**
+
+- **Reduced Docker image size further**  
+  - Removed Node.js and npm dependencies, making the image leaner.  
+  - Optimized package installations to ensure minimal footprint.  
+
+- **Improved performance and readability of reports**  
+  - The new Python-based approach ensures a more structured and cleaner output.  
+  - The `print_table.py` script leverages `tabulate` for displaying formatted reports.  
+
+- **Enhanced security**  
+  - Removed unnecessary dependencies, reducing potential attack vectors.  
+  - Ensured better handling of environment variables and file permissions.  
+
+---
+
 **"For any issues or feature requests, please add them to our repository's issue tracker: [BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP)."**

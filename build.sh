@@ -36,12 +36,11 @@ function scanCodeForCreds() {
   fi
 
   # Display the original CSV 
-  #   NOTE: The script uses 'tty-table' for table formatting. 
-  #   - Install Node.js and npm if not already installed.
-  #   - Install tty-table using: npm install -g tty-table
+  #   NOTE: Using python3 print_table.py custom script to print the tabular data.
+
   logInfoMessage "Displaying Original Report: reports/cred_scanner.csv"
   echo "================================================================================"
-  cat reports/cred_scanner.csv | tty-table
+  python3 /usr/local/bin/print_table.py reports/cred_scanner.csv
   echo "================================================================================"
 
   # Read and process the CSV
@@ -60,7 +59,7 @@ function scanCodeForCreds() {
   # Display the summary CSV
   logInfoMessage "Displaying Leak Summary Report: reports/cred_scanner_sum.csv"
   echo "================================================================================"
-  cat reports/cred_scanner_sum.csv | tty-table
+  python3 /usr/local/bin/print_table.py reports/cred_scanner_sum.csv
   echo "================================================================================"
 
   export base64EncodedResponse=`encodeFileContent reports/cred_scanner_sum.csv`
