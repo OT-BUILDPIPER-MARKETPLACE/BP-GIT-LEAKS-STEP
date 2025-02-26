@@ -1,9 +1,12 @@
 ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.3-mi`**
+
 ---
-**Version:** `0.3-mi`   
+**Version:** `0.3-mi`
 **Release Date:** *null*  
 **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
 ### Added
+
 - Initial script to scan Git repositories for credentials using Gitleaks.
 - Logging integration with logInfoMessage and logErrorMessage for better visibility.
 - Automatic creation of reports directory if it doesn't exist.
@@ -15,33 +18,38 @@
 - Generation and sending of MI data to the specified MI server.
 - Error handling when the codebase directory does not exist.
 - Task status management and reporting using saveTaskStatus.
+
 ---
+
 ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.3`**
+
 ---
-**Version:** `0.7.3`    
+**Version:** `0.7.3`
 **Release Date:** *15-01-2025*  
 **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
 
 - **Improved Git Repository Scanning:**
-    - Enhanced the credential scanning logic by generating a CSV report (`cred_scanner.csv`) and adding a summary file (`${cred_scanner}_sum.csv`) that includes the total count of leaks.
-    - Ensured that the `cred_scanner.csv` file always contains either the leak data or a "no-leaks" message.
-        
+  - Enhanced the credential scanning logic by generating a CSV report (`cred_scanner.csv`) and adding a summary file (`${cred_scanner}_sum.csv`) that includes the total count of leaks.
+  - Ensured that the `cred_scanner.csv` file always contains either the leak data or a "no-leaks" message.
+
 - **Integration with MI Reporting:**
-    - Integrated MI data generation and sending functionality to communicate the results with the MI server, improving traceability and reporting.
-    
+  - Integrated MI data generation and sending functionality to communicate the results with the MI server, improving traceability and reporting.
+
 - **Docker Image Updates:**
-    - Updated base image and dependencies for improved performance and compatibility.
+  - Updated base image and dependencies for improved performance and compatibility.
 
 - **Bug Fixes:**
-    - Fixed issues with report formatting for compatibility with downstream tools.
+  - Fixed issues with report formatting for compatibility with downstream tools.
 
 ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.4`**
+
 ---
-**Version:** `0.7.4`    
+**Version:** `0.7.4`
 **Release Date:** *15-01-2025*  
 **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
 
 ### **New Features:**
+
 - **Added tty-table for formatted report display**:  
   Now displays the Gitleaks scan results in a table format using `tty-table`. This allows for a more readable and visually appealing output.  
   *Note: Requires Node.js and npm. To install `tty-table`, run: `npm install -g tty-table`.*
