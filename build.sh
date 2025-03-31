@@ -14,6 +14,21 @@ BUILD_ENVIRONMENT_PROJECT_NAME=`getProjectEnv`
 BUILD_COMPONENT_NAME=`getServiceName`
 REPO_CLONE_DEPTH=`getRepoCloneDepth`
 
+function getCommitRange() {
+  TOTAL_COMMITS=$(git rev-list --count HEAD)
+  
+  if [[ "$TOTAL_COMMITS" -lt "$MAX_COMMITS" || "$MAX_COMMITS" -eq 0 ]]; then
+    SCAN_COMMITS="$TOTAL_COMMITS"
+  else
+    SCAN_COMMITS="$MAX_COMMITS"
+  fi
+
+  LATEST_COMMIT=$(git rev-parse HEAD)
+  PREVIOUS_COMMIT=$(git rev-list --max-count=$SCAN_COMMITS HEAD | tail -n 1)
+
+  echo "$PREVIOUS_COMMIT..$LATEST_COMMIT"
+}
+
 function scanCodeForCreds() {
 
   # logInfoMessage "Below command will be executed"
@@ -26,6 +41,10 @@ function scanCodeForCreds() {
   }
 
   [ -d "reports" ] || mkdir reports
+
+  COMMIT_RANGE=$(getCommitRange)
+
+  logInfoMessage "Scanning commits in range: $COMMIT_RANGE"
 
   if [[ $MAX_COMMITS -gt 0 ]]; then
     if [[ -n "$REPO_CLONE_DEPTH" && "$REPO_CLONE_DEPTH" -lt "$MAX_COMMITS" ]]; then
@@ -43,8 +62,11 @@ function scanCodeForCreds() {
     fi
   fi
 
-  GITLEAKS_CMD="gitleaks detect --verbose --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
-  [[ -n "$COMMIT_HASH" ]] && GITLEAKS_CMD+=" --log-opts=\"--since=$COMMIT_HASH\""
+  GITLEAKS_CMD="gitleaks detect --verbose --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG --source . --log-opts=\"$COMMIT_RANGE\""
+
+
+  # GITLEAKS_CMD="gitleaks detect --verbose --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
+  # [[ -n "$COMMIT_HASH" ]] && GITLEAKS_CMD+=" --log-opts=\"--since=$COMMIT_HASH\""
   
   logInfoMessage "Executing: $GITLEAKS_CMD"
   eval "$GITLEAKS_CMD"

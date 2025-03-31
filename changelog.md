@@ -66,4 +66,28 @@
 
 ---
 
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.5`**
+---
+**Version:** `0.7.5`
+**Release Date:** *12-02-2025*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+- **Enhanced Git Scanning Efficiency:**
+    - Now dynamically determines the commit range using `MAX_COMMITS`, reducing redundant scans.
+    - Added `getRepoCloneDepth` to control repository clone depth dynamically.
+
+---
+
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.8-alpha`**
+---
+**Version:** `0.7.8-alpha`
+**Release Date:** *31-03-2025*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+- **Enhanced Git Scanning Efficiency:**
+    - Now dynamically determines the commit range using `MAX_COMMITS`, reducing redundant scans.
+    - Added `getRepoCloneDepth` to control repository clone depth dynamically.
+
+---
+
 **"For any issues or feature requests, please add them to our repository's issue tracker: [BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP)."**
