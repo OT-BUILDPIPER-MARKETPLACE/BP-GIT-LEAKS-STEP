@@ -14,10 +14,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy files efficiently with correct permissions
 COPY build.sh .
-COPY print_table.py /usr/local/bin/print_table.py
 ADD BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
 ADD BP-BASE-SHELL-STEPS/data /opt/buildpiper/data
-RUN chmod +x build.sh /usr/local/bin/print_table.py
+RUN chmod +x build.sh
 
 # Environment variables
 ENV APPLICATION_NAME="" \
