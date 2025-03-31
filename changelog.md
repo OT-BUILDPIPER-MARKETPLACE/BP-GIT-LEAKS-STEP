@@ -186,4 +186,27 @@
 
 ---
 
+### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.8`**  
+
+**Version:** `0.7.8`  
+**Release Date:** *27-02-2025*  
+**Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*  
+
+#### **Changes & Enhancements:**  
+- Added logging message:
+
+  ```bash
+  logInfoMessage "Updating reports in /bp/execution_dir/${GLOBAL_TASK_ID}......."
+  ```
+
+- Updated report handling to copy all reports to the execution directory:  
+
+  ```bash
+  cp -rf reports/* /bp/execution_dir/${GLOBAL_TASK_ID}/
+  ```
+  
+- Ensures all reports are stored in the workspace for better traceability.  
+
+---
+
 **"For any issues or feature requests, please add them to our repository's issue tracker: [BP-GIT-LEAKS-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-GIT-LEAKS-STEP)."**

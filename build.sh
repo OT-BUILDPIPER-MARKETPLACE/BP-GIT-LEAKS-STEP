@@ -73,6 +73,9 @@ function scanCodeForCreds() {
   generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
   cat gitleaks.mi
   sendMIData gitleaks.mi ${MI_SERVER_ADDRESS}
+
+  logInfoMessage "Updating reports in /bp/execution_dir/${GLOBAL_TASK_ID}......."
+  cp -rf reports/* /bp/execution_dir/${GLOBAL_TASK_ID}/
 }
 
 CODEBASE_LOCATION="${WORKSPACE}"/"${CODEBASE_DIR}"
