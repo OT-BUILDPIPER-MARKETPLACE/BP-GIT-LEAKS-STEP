@@ -87,6 +87,7 @@
 - **Enhanced Git Scanning Efficiency:**
     - Now dynamically determines the commit range using `MAX_COMMITS`, reducing redundant scans.
     - Added `getRepoCloneDepth` to control repository clone depth dynamically.
+    - Updated to handle service and environment names for V3 step.
 
 ---
 

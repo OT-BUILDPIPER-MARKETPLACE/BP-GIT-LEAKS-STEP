@@ -10,8 +10,10 @@ source /opt/buildpiper/shell-functions/getDataFile.sh
 
 TASK_STATUS=0
 MAX_COMMITS=${MAX_COMMITS:-0}  # Default to scanning all commits if not set
-BUILD_ENVIRONMENT_PROJECT_NAME=`getProjectEnv`
-BUILD_COMPONENT_NAME=`getServiceName`
+# BUILD_ENVIRONMENT_PROJECT_NAME=`getProjectEnv`
+# BUILD_COMPONENT_NAME=`getServiceName`
+environment="${PROJECT_ENV_NAME:-$(getProjectEnv)}"
+service="${COMPONENT_NAME:-$(getServiceName)}"
 REPO_CLONE_DEPTH=`getRepoCloneDepth`
 
 function getCommitRange() {
@@ -109,8 +111,8 @@ function scanCodeForCreds() {
 
   export base64EncodedResponse=`encodeFileContent reports/cred_scanner_sum.csv`
   export application=$APPLICATION_NAME
-  export environment=$BUILD_ENVIRONMENT_PROJECT_NAME
-  export service=$BUILD_COMPONENT_NAME
+  export environment=$environment
+  export service=$service
   export organization=$ORGANIZATION
   export source_key=$SOURCE_KEY
   export report_file_path=$REPORT_FILE_PATH
