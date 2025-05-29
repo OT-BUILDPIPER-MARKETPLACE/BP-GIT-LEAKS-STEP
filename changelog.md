@@ -81,7 +81,8 @@
 ### **Change Log for Docker Image: `registry.buildpiper.in/okts/gitleaks-scan:0.7.8-alpha`**
 ---
 **Version:** `0.7.8-alpha`
-**Release Date:** *31-03-2025*  
+**Release Date:** *31-03-2025*
+**Update Date:** *29-05-2025*
 **Maintainer:** *[Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
 
 - **Enhanced Git Scanning Efficiency:**
