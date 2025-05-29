@@ -1,5 +1,7 @@
 # **Change Log**
 
+## registry.buildpiper.in/okts/gitleaks-scan:latest
+
 | **Version** | **Release Date** | **Maintainer** | **New Features & Enhancements** | **Bug Fixes** |
 |-------------|------------------|----------------|----------------------------------|---------------|
 | `0.3-mi`    | *null*           | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Initial script to scan Git repositories for credentials using Gitleaks. | N/A |
@@ -10,6 +12,7 @@
 | `0.7.7`     | 27-02-2025       | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Enhanced secret detection with redaction, optimized reporting output. | N/A |
 | `0.7.8`     | 27-02-2025       | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Added logging message, updated report handling to copy all reports to the execution directory. | N/A |
 | `0.7.9`     | 01-04-2025       | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Enhanced commit range scanning, improved report summarization, optimized dependency management, improved logging. | Fixed empty report handling, improved error handling. |
+| `0.8.1`     | 30-05-2025       | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Refactored MI data sending logic: MI data is now only sent if `MI_SERVER_ADDRESS` is provided, with improved handling and logging. | N/A |
 
 ---
 
@@ -107,6 +110,17 @@
 - **Bug Fixes:**
   - Fixed empty report handling to ensure completeness.
   - Improved error handling for scenarios like missing codebase directories or invalid commit ranges.
+
+---
+
+### **Version: `0.8.1`**
+- **Release Date:** 30-05-2025
+- **Maintainer:** [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)
+- **New Features & Enhancements:**
+  - Refactored the script to ensure MI data is only sent if `MI_SERVER_ADDRESS` is set.
+  - Improved error handling and logging for MI data transmission.
+- **Bug Fixes:**
+  - N/A
 
 ---
 

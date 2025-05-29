@@ -10,8 +10,8 @@ source /opt/buildpiper/shell-functions/getDataFile.sh
 
 TASK_STATUS=0
 MAX_COMMITS=${MAX_COMMITS:-0}  # Default to scanning all commits if not set
-BUILD_ENVIRONMENT_PROJECT_NAME=`getProjectEnv`
-BUILD_COMPONENT_NAME=`getServiceName`
+environment="${PROJECT_ENV_NAME:-$(getProjectEnv)}"
+service="${COMPONENT_NAME:-$(getServiceName)}"
 REPO_CLONE_DEPTH=`getRepoCloneDepth`
 
 function getCommitRange() {
@@ -105,17 +105,22 @@ function scanCodeForCreds() {
   python3 /opt/buildpiper/shell-functions/print_table.py reports/cred_scanner_sum.csv
   echo "================================================================================"
 
-  export base64EncodedResponse=`encodeFileContent reports/cred_scanner_sum.csv`
-  export application=$APPLICATION_NAME
-  export environment=$BUILD_ENVIRONMENT_PROJECT_NAME
-  export service=$BUILD_COMPONENT_NAME
-  export organization=$ORGANIZATION
-  export source_key=$SOURCE_KEY
-  export report_file_path=$REPORT_FILE_PATH
+  # Only send MI data if MI_SERVER_ADDRESS is provided
+  if [[ -n "${MI_SERVER_ADDRESS}" ]]; then
+    export base64EncodedResponse=$(encodeFileContent reports/cred_scanner_sum.csv)
+    export application=$APPLICATION_NAME
+    export environment=$environment
+    export service=$service
+    export organization=$ORGANIZATION
+    export source_key=$SOURCE_KEY
+    export report_file_path=$REPORT_FILE_PATH
 
-  generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
-  cat gitleaks.mi
-  sendMIData gitleaks.mi ${MI_SERVER_ADDRESS}
+    generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
+    cat gitleaks.mi
+    sendMIData gitleaks.mi "${MI_SERVER_ADDRESS}"
+  else
+    logInfoMessage "MI_SERVER_ADDRESS not provided. Skipping MI data send."
+  fi
 
   logInfoMessage "Updating reports in /bp/execution_dir/${GLOBAL_TASK_ID}......."
   cp -rf reports/* /bp/execution_dir/${GLOBAL_TASK_ID}/
