@@ -1,9 +1,13 @@
 FROM zricethezav/gitleaks:latest
-# USER root
-
+# Set working directory
+WORKDIR /home/buildpiper
 # Install dependencies
-RUN apk --no-cache add \
-    bash jq gettext libintl curl python3 py3-pip py3-virtualenv
+RUN apk --no-cache add bash jq gettext libintl curl python3 py3-pip py3-virtualenv && \
+    addgroup -g 1001 buildpiper && \
+    adduser -D -h /home/buildpiper -u 1001 -G buildpiper buildpiper && \
+    mkdir -p /home/buildpiper && chown -R buildpiper:buildpiper /home/buildpiper
+
+
 
 # Create a virtual environment and install Python packages inside it
 RUN python3 -m venv /opt/venv && \
@@ -12,11 +16,25 @@ RUN python3 -m venv /opt/venv && \
 # Set environment variables to use the virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy files efficiently with correct permissions
-COPY build.sh .
-ADD BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
-ADD BP-BASE-SHELL-STEPS/data /opt/buildpiper/data
-RUN chmod +x build.sh
+# Create necessary directories and assign permissions early
+RUN mkdir -p \
+    /src/reports \
+    /bp/data \
+    /bp/execution_dir \
+    /opt/buildpiper/shell-functions \
+    /opt/buildpiper/data \
+    /bp/workspace && \
+    chown -R buildpiper:buildpiper /src /bp /opt
+
+
+
+# Copy files with correct ownership
+COPY --chown=buildpiper:buildpiper build.sh /home/buildpiper/build.sh
+COPY --chown=buildpiper:buildpiper BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
+COPY --chown=buildpiper:buildpiper BP-BASE-SHELL-STEPS/data /opt/buildpiper/data/
+
+# Make the build script executable
+RUN chmod +x /home/buildpiper/build.sh
 
 # Environment variables
 ENV APPLICATION_NAME="" \
@@ -26,8 +44,17 @@ ENV APPLICATION_NAME="" \
     OUTPUT_ARG="gitleaks.json" \
     REPORT_FILE_PATH="null" \
     MI_SERVER_ADDRESS="" \
+    WORKSPACE='/bp/workspace'\
     ACTIVITY_SUB_TASK_CODE="BP-GIT-LEAKS-TASK" \
     VALIDATION_ACTION_FAILURE="WARNING" \
     SLEEP_DURATION="5s"
 
-ENTRYPOINT [ "./build.sh" ]
+RUN chown -R buildpiper:buildpiper /bp/workspace && \
+    mkdir -p /home/buildpiper/reports && \
+    chown -R buildpiper:buildpiper /home/buildpiper
+
+# Switch to non-root user
+USER buildpiper
+
+# Entry point
+ENTRYPOINT ["./build.sh"]

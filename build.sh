@@ -8,8 +8,22 @@ source /opt/buildpiper/shell-functions/file-functions.sh
 source /opt/buildpiper/shell-functions/aws-functions.sh
 source /opt/buildpiper/shell-functions/getDataFile.sh
 
+git config --global --add safe.directory "$(pwd)"
+
+CODEBASE_LOCATION="${WORKSPACE}/${CODEBASE_DIR}"
+
+# Clone repo if not already there
+if [[ ! -d "$CODEBASE_LOCATION" && -n "$GIT_REPO_URL" ]]; then
+  echo "[INFO] Cloning $GIT_REPO_URL into $CODEBASE_LOCATION"
+  git clone "$GIT_REPO_URL" "$CODEBASE_LOCATION" --depth=50 || {
+    echo "[ERROR] Failed to clone Git repo"
+    exit 1
+  }
+fi
+
 TASK_STATUS=0
 MAX_COMMITS=${MAX_COMMITS:-0}  # Default to scanning all commits if not set
+echo $MAX_COMMITS
 environment="${PROJECT_ENV_NAME:-$(getProjectEnv)}"
 service="${COMPONENT_NAME:-$(getServiceName)}"
 REPO_CLONE_DEPTH=`getRepoCloneDepth`
@@ -62,7 +76,7 @@ function scanCodeForCreds() {
   fi
 
   GITLEAKS_CMD="gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v --redact=90 --source . --log-opts=\"$COMMIT_RANGE\""
-
+  pwd
   logInfoMessage "Executing: $GITLEAKS_CMD"
   eval "$GITLEAKS_CMD"
   TASK_STATUS=$?
