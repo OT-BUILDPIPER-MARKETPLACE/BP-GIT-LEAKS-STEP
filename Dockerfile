@@ -3,8 +3,8 @@ FROM zricethezav/gitleaks:latest
 WORKDIR /home/buildpiper
 # Install dependencies
 RUN apk --no-cache add bash jq gettext libintl curl python3 py3-pip py3-virtualenv && \
-    addgroup -g 1001 buildpiper && \
-    adduser -D -h /home/buildpiper -u 1001 -G buildpiper buildpiper && \
+    addgroup -g 65522 buildpiper && \
+    adduser -D -h /home/buildpiper -u 65522 -G buildpiper buildpiper && \
     mkdir -p /home/buildpiper && chown -R buildpiper:buildpiper /home/buildpiper
 
 
@@ -16,15 +16,15 @@ RUN python3 -m venv /opt/venv && \
 # Set environment variables to use the virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Create necessary directories and assign permissions early
-RUN mkdir -p \
-    /src/reports \
-    /bp/data \
-    /bp/execution_dir \
-    /opt/buildpiper/shell-functions \
-    /opt/buildpiper/data \
-    /bp/workspace && \
-    chown -R buildpiper:buildpiper /src /bp /opt
+# # Create necessary directories and assign permissions early
+# RUN mkdir -p \
+#     /src/reports \
+#     /bp/data \
+#     /bp/execution_dir \
+#     /opt/buildpiper/shell-functions \
+#     /opt/buildpiper/data \
+#     /bp/workspace && \
+#     chown -R buildpiper:buildpiper /src /bp /opt
 
 
 
@@ -49,9 +49,9 @@ ENV APPLICATION_NAME="" \
     VALIDATION_ACTION_FAILURE="WARNING" \
     SLEEP_DURATION="5s"
 
-RUN chown -R buildpiper:buildpiper /bp/workspace && \
-    mkdir -p /home/buildpiper/reports && \
-    chown -R buildpiper:buildpiper /home/buildpiper
+#RUN chown -R buildpiper:buildpiper /bp/workspace && \
+#    mkdir -p /home/buildpiper/reports && \
+#    chown -R buildpiper:buildpiper /home/buildpiper
 
 # Switch to non-root user
 USER buildpiper
