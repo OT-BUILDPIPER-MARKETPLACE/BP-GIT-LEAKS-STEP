@@ -13,6 +13,7 @@
 | `0.7.8`     | 27-02-2025       | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Added logging message, updated report handling to copy all reports to the execution directory. | N/A |
 | `0.7.9`     | 01-04-2025       | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Enhanced commit range scanning, improved report summarization, optimized dependency management, improved logging. | Fixed empty report handling, improved error handling. |
 | `0.8.1`     | 30-05-2025       | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Refactored MI data sending logic: MI data is now only sent if `MI_SERVER_ADDRESS` is provided, with improved handling and logging. | N/A |
+| `0.8.1-nr`     | 06-11-2025       | [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj) | Enhanced Dockerfile: Added non-root `buildpiper` user and dedicated directories with secure permissions (770), improved file ownership using `--chown`, ensured least-privilege execution by switching to non-root user. | Fixed permission-related build and runtime issues for non-root environments. |
 
 ---
 
@@ -121,6 +122,26 @@
   - Improved error handling and logging for MI data transmission.
 - **Bug Fixes:**
   - N/A
+
+---
+
+### **Version: `0.8.1-nr`**
+
+* **Release Date:** 06-11-2025
+* **Maintainer:** [Email](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)
+* **New Features & Enhancements:**
+  * Added dedicated **`buildpiper`** user and group (`uid/gid: 65522`) to enforce non-root execution.
+  * Created structured directories:
+    * `/src/reports`, `/bp/data`, `/bp/execution_dir`, `/bp/workspace`
+    * `/opt/buildpiper/shell-functions`, `/opt/buildpiper/data`, `/opt/python_versions`, `/opt/jdk`, `/opt/maven`
+    * `/usr/local/bin`, `/etc/timezone`, `/var/lib/apt/lists`, `/app/venv`
+  * Applied proper ownership (`chown -R buildpiper:buildpiper`) and permissions for secure operation.
+  * Used `COPY --chown` for all project files to preserve ownership during image build.
+  * Set final container user as **`buildpiper`** for execution instead of root.
+  * Improved maintainability and image compliance for security standards.
+* **Bug Fixes:**
+  * Resolved permission-related issues encountered during runtime on Kubernetes and containerized deployments.
+  * Prevented file access conflicts caused by root-level writes in shared volumes.
 
 ---
 
