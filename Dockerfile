@@ -26,6 +26,16 @@ RUN mkdir -p \
 RUN apk --no-cache add \
     bash jq gettext libintl curl python3 py3-pip py3-virtualenv
 
+# ADDITION #1: Install git + CA certificates + timezone support
+RUN apk add --no-cache \
+    git \
+    ca-certificates \
+    tzdata && \
+    update-ca-certificates
+
+# ADDITION #2: Use bash as default shell
+SHELL ["/bin/bash", "-c"]
+
 # Create a virtual environment and install Python packages inside it
 RUN python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --no-cache-dir tabulate
@@ -38,6 +48,10 @@ COPY --chown=buildpiper:buildpiper build.sh .
 COPY --chown=buildpiper:buildpiper BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
 COPY --chown=buildpiper:buildpiper BP-BASE-SHELL-STEPS/data /opt/buildpiper/data
 RUN chmod +x build.sh
+
+# ADDITION #3: Create log dir for BP scripts
+RUN mkdir -p /app/logs && \
+    chown -R buildpiper:buildpiper /app/logs
 
 # Environment variables
 ENV APPLICATION_NAME="" \
@@ -54,3 +68,4 @@ ENV APPLICATION_NAME="" \
 USER buildpiper
 
 ENTRYPOINT [ "./build.sh" ]
+
