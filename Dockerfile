@@ -1,5 +1,5 @@
 FROM zricethezav/gitleaks:latest
-# USER root
+
 
 # Create user and group (Alpine syntax)
 RUN addgroup -g 65522 buildpiper && \
