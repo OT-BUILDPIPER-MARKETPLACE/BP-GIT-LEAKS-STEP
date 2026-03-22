@@ -57,8 +57,8 @@ RUN mkdir -p /app/logs && \
 ENV APPLICATION_NAME="" \
     ORGANIZATION="" \
     SOURCE_KEY="gitleak" \
-    FORMAT_ARG="json" \
-    OUTPUT_ARG="gitleaks.json" \
+    FORMAT_ARG="csv" \
+    OUTPUT_ARG="gitleaks.csv" \
     REPORT_FILE_PATH="null" \
     MI_SERVER_ADDRESS="" \
     ACTIVITY_SUB_TASK_CODE="BP-GIT-LEAKS-TASK" \
