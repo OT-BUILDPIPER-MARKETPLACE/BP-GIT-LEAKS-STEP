@@ -31,6 +31,10 @@ function getCommitRange() {
 
 function scanCodeForCreds() {
 
+    add_event "SECRET SCAN START" "In Progress" \
+    "Starting GitLeaks scan" \
+    "Scanning repository for sensitive data"
+
 #   logInfoMessage "Below command will be executed"
 #   logInfoMessage "gitleaks detect ${CODEBASE_LOCATION} --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
   logInfoMessage "Validating Git repository for vulnerabilities..."
@@ -39,11 +43,16 @@ function scanCodeForCreds() {
   logErrorMessage "${CODEBASE_LOCATION}: No such directory exists"
   exit 1
   }
-
+add_event "CODEBASE VALIDATION" "Successful" \
+"Codebase directory found" \
+"Repository ready for scanning"
   [ -d "reports" ] || mkdir reports
 
   COMMIT_RANGE=$(getCommitRange)
   logInfoMessage "Scanning commits in range: $COMMIT_RANGE"
+  add_event "COMMIT RANGE VALIDATION" "Successful" \
+    "Commit range calculated" \
+    "Scanning commits: $COMMIT_RANGE"
 
   if [[ $MAX_COMMITS -gt 0 ]]; then
     if [[ -n "$REPO_CLONE_DEPTH" && "$REPO_CLONE_DEPTH" -lt "$MAX_COMMITS" ]]; then
@@ -61,11 +70,26 @@ function scanCodeForCreds() {
     fi
   fi
 
+  add_event "SECRET SCAN EXECUTION" "In Progress" \
+  "Running GitLeaks scan" \
+  "Analyzing repository for credentials"
+
   GITLEAKS_CMD="gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v --redact=90 --source . --log-opts=\"$COMMIT_RANGE\""
 
   logInfoMessage "Executing: $GITLEAKS_CMD"
   eval "$GITLEAKS_CMD"
   TASK_STATUS=$?
+  
+    if [ $TASK_STATUS -eq 0 ]; then
+    add_event "SECRET SCAN RESULT" "Successful" \
+    "No credentials found" \
+    "Repository is secure"
+  else
+    add_event "SECRET SCAN RESULT" "Failed" \
+    "Credentials detected in repository" \
+    "Check generated report"
+  fi
+  
   jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
 
   if [ ! -s reports/cred_scanner.csv ] || [ -z "$(cat reports/cred_scanner.csv | tr -d '[:space:]')" ]; then
@@ -105,6 +129,10 @@ function scanCodeForCreds() {
   python3 /opt/buildpiper/shell-functions/print_table.py reports/cred_scanner_sum.csv
   echo "================================================================================"
 
+  add_event "REPORT GENERATION" "Successful" \
+  "Scan report generated" \
+  "Reports saved successfully"
+
   # Only send MI data if MI_SERVER_ADDRESS is provided
   if [[ -n "${MI_SERVER_ADDRESS}" ]]; then
     export base64EncodedResponse=$(encodeFileContent reports/cred_scanner_sum.csv)
@@ -135,9 +163,17 @@ if [ -d ${CODEBASE_LOCATION} ];then
    scanCodeForCreds
 else
     logErrorMessage "${CODEBASE_LOCATION}: No such file or directory exist"
+    add_event "CODEBASE VALIDATION" "Failed" \
+    "Codebase directory not found" \
+    "Scan cannot proceed"
+    
     logErrorMessage "Please check Git repository vulnerabilities scan failed!!!"
     generateOutput $ACTIVITY_SUB_TASK_CODE false "Please check Git repository vulnerabilities scan failed!!!"
     TASK_STATUS=1
 fi
 
+
+add_event "GIT CLONE" "Successful" "Clone Successful" "Clone is successful"
+
 saveTaskStatus ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE}
+
