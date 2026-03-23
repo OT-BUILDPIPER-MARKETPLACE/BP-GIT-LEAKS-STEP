@@ -31,9 +31,9 @@ function getCommitRange() {
 
 function scanCodeForCreds() {
 
-    add_event "SECRET SCAN START" "In Progress" \
-    "Starting GitLeaks scan" \
-    "Scanning repository for sensitive data"
+    add_event "SECRET SCAN START" "Successful" \
+    "Scan initialization completed" \
+    "Ready to proceed"
 
 #   logInfoMessage "Below command will be executed"
 #   logInfoMessage "gitleaks detect ${CODEBASE_LOCATION} --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
@@ -44,8 +44,8 @@ function scanCodeForCreds() {
   exit 1
   }
 add_event "CODEBASE VALIDATION" "Successful" \
-"Codebase directory found" \
-"Repository ready for scanning"
+"Codebase validation passed" \
+"Repository path [$CODEBASE_LOCATION] is accessible."
   [ -d "reports" ] || mkdir reports
 
   COMMIT_RANGE=$(getCommitRange)
@@ -70,25 +70,11 @@ add_event "CODEBASE VALIDATION" "Successful" \
     fi
   fi
 
-  add_event "SECRET SCAN EXECUTION" "In Progress" \
-  "Running GitLeaks scan" \
-  "Analyzing repository for credentials"
-
   GITLEAKS_CMD="gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG -v --redact=90 --source . --log-opts=\"$COMMIT_RANGE\""
 
   logInfoMessage "Executing: $GITLEAKS_CMD"
   eval "$GITLEAKS_CMD"
   TASK_STATUS=$?
-  
-    if [ $TASK_STATUS -eq 0 ]; then
-    add_event "SECRET SCAN RESULT" "Successful" \
-    "No credentials found" \
-    "Repository is secure"
-  else
-    add_event "SECRET SCAN RESULT" "Failed" \
-    "Credentials detected in repository" \
-    "Check generated report"
-  fi
   
   jq -r 'group_by(.RuleID) | map({RuleID: .[0].RuleID, Count: length}) | (map(.RuleID) | @csv), (map(.Count) | @csv)' reports/$OUTPUT_ARG | sed 's/"//g' > reports/cred_scanner.csv
 
@@ -122,7 +108,17 @@ add_event "CODEBASE VALIDATION" "Successful" \
   
   logInfoMessage "Total leaks calculated: $sum"
   logInfoMessage "Sum has been saved to reports/cred_scanner_sum.csv"
-  
+
+if [ "$sum" -eq 0 ]; then
+  add_event "SECRET SCAN SUMMARY" "Successful" \
+  "No secrets detected" \
+  "Repository is clean with zero leaks"
+else
+  add_event "SECRET SCAN SUMMARY" "Failed" \
+  "Secrets detected in repository" \
+  "Total leaks found: $sum. Check report for details"
+fi
+
   # Display the summary CSV
   logInfoMessage "Displaying Leak Summary Report: reports/cred_scanner_sum.csv"
   echo "================================================================================"
@@ -171,9 +167,6 @@ else
     generateOutput $ACTIVITY_SUB_TASK_CODE false "Please check Git repository vulnerabilities scan failed!!!"
     TASK_STATUS=1
 fi
-
-
-add_event "GIT CLONE" "Successful" "Clone Successful" "Clone is successful"
 
 saveTaskStatus ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE}
 
