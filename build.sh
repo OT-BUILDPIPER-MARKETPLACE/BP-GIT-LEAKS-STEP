@@ -30,10 +30,16 @@ function getCommitRange() {
 }
 
 function scanCodeForCreds() {
-
-    add_event "SECRET SCAN START" "Successful" \
-    "Scan initialization completed" \
-    "Ready to proceed"
+    if [ -d "${CODEBASE_LOCATION}" ]; then
+        add_event "SECRET SCAN START" "Successful" \
+            "Scan initialization completed" \
+            "Ready to proceed"
+    else
+        add_event "SECRET SCAN START" "Failed" \
+            "Scan initialization failed" \
+            "Codebase location [${CODEBASE_LOCATION}] does not exist."
+        exit 1
+    fi
 
 #   logInfoMessage "Below command will be executed"
 #   logInfoMessage "gitleaks detect ${CODEBASE_LOCATION} --exit-code 1 --report-format $FORMAT_ARG --report-path reports/$OUTPUT_ARG"
@@ -43,8 +49,10 @@ function scanCodeForCreds() {
   logErrorMessage "${CODEBASE_LOCATION}: No such directory exists"
   exit 1
   }
-add_event "CODEBASE VALIDATION" "Successful" \
-"Codebase validation passed" \
+
+
+add_event "SOURCE VALIDATION" "Successful" \
+"Repository path verified" \
 "Repository path [$CODEBASE_LOCATION] is accessible."
   [ -d "reports" ] || mkdir reports
 
@@ -127,7 +135,7 @@ fi
 
   add_event "REPORT GENERATION" "Successful" \
   "Scan report generated" \
-  "Reports saved successfully"
+  "Reports saved at: reports/cred_scanner.csv and reports/cred_scanner_sum.csv"
 
   # Only send MI data if MI_SERVER_ADDRESS is provided
   if [[ -n "${MI_SERVER_ADDRESS}" ]]; then
