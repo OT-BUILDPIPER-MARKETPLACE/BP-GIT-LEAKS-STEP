@@ -53,7 +53,7 @@ add_event() {
 ###############################################
 ### OUTPUT FILE
 ###############################################
-GITLEAKS_OUTPUT_FILE="${GITLEAKS_OUTPUT_FILE:-gitleaks_output.json}"
+GITLEAKS_OUTPUT_FILE="${GITLEAKS_OUTPUT_FILE:-${ACTIVITY_SUB_TASK_CODE}_output.json}"
 
 ###############################################
 ### SET DEFAULT FORMAT AND OUTPUT IF NOT SET
@@ -237,23 +237,30 @@ function scanCodeForCreds() {
   # Run gitleaks
   # ----------------------------------------
   logInfoMessage "Executing: $GITLEAKS_CMD"
-  eval "$GITLEAKS_CMD"
+  if [[ "$DEBUG" == "true" ]]; then
+    eval "$GITLEAKS_CMD"
+  else
+    eval "$GITLEAKS_CMD" > /dev/null 2>&1
+  fi
   GITLEAKS_EXIT_CODE=$?
+
 
   # ----------------------------------------
   # DEBUG: Check if file was created
   # ----------------------------------------
-  logInfoMessage "DEBUG: Checking for output file: $OUTPUT_ARG"
-  if [[ -f "$OUTPUT_ARG" ]]; then
-    logInfoMessage "DEBUG: File EXISTS. Size: $(ls -lh $OUTPUT_ARG | awk '{print $5}')"
-    logInfoMessage "DEBUG: First 5 lines:"
-    head -n 5 "$OUTPUT_ARG"
-  else
-    logErrorMessage "DEBUG: File DOES NOT EXIST!"
-    logInfoMessage "DEBUG: Current directory: $(pwd)"
-    logInfoMessage "DEBUG: Files in current directory:"
-    ls -la
-  fi
+  if [[ "$DEBUG" == "true" ]]; then
+    logInfoMessage "DEBUG: Checking for output file: $OUTPUT_ARG"
+    if [[ -f "$OUTPUT_ARG" ]]; then
+      logInfoMessage "DEBUG: File EXISTS. Size: $(ls -lh $OUTPUT_ARG | awk '{print $5}')"
+      logInfoMessage "DEBUG: First 5 lines:"
+      head -n 5 "$OUTPUT_ARG"
+    else
+      logErrorMessage "DEBUG: File DOES NOT EXIST!"
+      logInfoMessage "DEBUG: Current directory: $(pwd)"
+      logInfoMessage "DEBUG: Files in current directory:"
+      ls -la
+    fi
+  fi  
 
   if [[ "$GITLEAKS_EXIT_CODE" -gt 1 ]]; then
     add_event "gitleaks scan" "Failed" "Gitleaks execution error" "gitleaks exited with unexpected code $GITLEAKS_EXIT_CODE"
@@ -293,12 +300,9 @@ function scanCodeForCreds() {
       # Group by RuleID and create summary CSV
       jq -r '
         group_by(.RuleID) | 
-        map({
-          rule: (.[0].RuleID // "unknown"),
-          count: length
-        }) |
-        ["Rule ID", "Count"],
-        (.[] | [.rule, .count]) |
+        map({rule: (.[0].RuleID // "unknown"), count: length, file: (.[0].File // "N/A")}) |
+        ["Rule ID", "Count", "File"],
+        (.[] | [.rule, .count, .file]) |
         @csv
       ' "$OUTPUT_ARG" | sed 's/"//g' > cred_scanner.csv
       
@@ -310,25 +314,29 @@ function scanCodeForCreds() {
       add_event "generate csv report" "Successful" "CSV report generated" "cred_scanner.csv populated with leak breakdown by RuleID"
       
     else
-      # No leaks found
-      sum=0
-      logWarningMessage "DEBUG: JSON file is empty or invalid, creating fallback"
-      echo "Rule ID,Count" > cred_scanner.csv
-      echo "no-leaks,0" >> cred_scanner.csv
-      add_event "generate csv report" "Successful" "No leaks found" "cred_scanner.csv created with zero leaks"
-    fi
+          # No leaks found
+          sum=0
+          logWarningMessage "DEBUG: JSON file is empty or invalid, creating fallback"
+          echo "Rule ID,Count,File" > cred_scanner.csv
+          echo "no-leaks,0,N/A" >> cred_scanner.csv
+          add_event "generate csv report" "Successful" "No leaks found" "cred_scanner.csv created with zero leaks"
+        fi
   fi
 
-  # Create total summary
-  echo "Metric,Value" > cred_scanner_sum.csv
-  echo "Total Leaks,$sum" >> cred_scanner_sum.csv
+  # Create total summary - 2 columns, no header for MI server
+  echo -e "total_leaks\n$sum" > cred_scanner_sum.csv
+  cat cred_scanner_sum.csv
   add_event "generate summary report" "Successful" "Summary computed" "Total leaks counted: $sum"
 
+  # Display leak report
   logInfoMessage "Displaying Leak Report by Rule"
   python3 /opt/buildpiper/shell-functions/print_table.py cred_scanner.csv
 
+  # Display summary report (separate file with header, only for display)
   logInfoMessage "Displaying Summary Report"
-  python3 /opt/buildpiper/shell-functions/print_table.py cred_scanner_sum.csv
+  echo "Metric,Value" > cred_scanner_sum_display.csv
+  echo "Total Leaks,$sum" >> cred_scanner_sum_display.csv
+  python3 /opt/buildpiper/shell-functions/print_table.py cred_scanner_sum_display.csv
 
   # ----------------------------------------
   # Threshold evaluation
@@ -436,21 +444,24 @@ function scanCodeForCreds() {
   # Send MI if enabled
   # ----------------------------------------
   if [[ -n "${MI_SERVER_ADDRESS}" ]]; then
-    export base64EncodedResponse=$(encodeFileContent cred_scanner_sum.csv)
-    export application=$APPLICATION_NAME
-    export environment=$environment
-    export service=$service
-    export organization=$ORGANIZATION
-    export source_key=$SOURCE_KEY
-    export report_file_path=$REPORT_FILE_PATH
-
-    generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
-    if sendMIData gitleaks.mi "${MI_SERVER_ADDRESS}"; then
-      add_event "send mi data" "Successful" "MI data sent" "Metrics sent to $MI_SERVER_ADDRESS"
-    else
-      add_event "send mi data" "Failed" "MI send error" "Failed to send metrics to $MI_SERVER_ADDRESS"
+      export base64EncodedResponse=$(encodeFileContent cred_scanner_sum.csv)
+      export application=$APPLICATION_NAME
+      export environment=$environment
+      export service=$service
+      export organization=$ORGANIZATION
+      export source_key=$SOURCE_KEY
+      if [[ -z "$REPORT_FILE_PATH" || "$REPORT_FILE_PATH" == "null" ]]; then
+        export report_file_path=""
+      else
+        export report_file_path="$REPORT_FILE_PATH"
+      fi
+      generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
+      if sendMIData gitleaks.mi "${MI_SERVER_ADDRESS}"; then
+        add_event "send mi data" "Successful" "MI data sent" "Metrics sent to $MI_SERVER_ADDRESS"
+      else
+        add_event "send mi data" "Failed" "MI send error" "Failed to send metrics to $MI_SERVER_ADDRESS"
+      fi
     fi
-  fi
 
   cp -rf * "/bp/execution_dir/${GLOBAL_TASK_ID}/"
 
@@ -460,15 +471,26 @@ function scanCodeForCreds() {
   if [[ "$TASK_STATUS" -eq 0 ]]; then
     logInfoMessage "Congratulations! Credential scan passed."
     generateOutput ${ACTIVITY_SUB_TASK_CODE} true "$FINAL_MESSAGE"
+
   elif [[ "${VALIDATION_FAILURE_ACTION:-FAILURE}" == "FAILURE" ]]; then
     logErrorMessage "Credential scan FAILED. Stopping pipeline."
     generateOutput ${ACTIVITY_SUB_TASK_CODE} false "$FINAL_MESSAGE"
     exit 1
+
   else
-    logWarningMessage "Credential scan failed (non-blocking — VALIDATION_FAILURE_ACTION is not FAILURE)."
+    logWarningMessage "Credential scan failed, but the step is configured as NON-BLOCKING (warning mode).
+
+  If you want the pipeline to FAIL on leaks:
+  - Go to job template settings
+  - Set VALIDATION_FAILURE_ACTION = FAILURE
+
+  Current setting allows pipeline to continue."
+
+    add_event "validation mode" "Successful" "Non-blocking validation" "Scan failed but pipeline continued because VALIDATION_FAILURE_ACTION is not FAILURE"
+
     generateOutput ${ACTIVITY_SUB_TASK_CODE} true "$FINAL_MESSAGE"
   fi
-}
+  }
 
 ###############################################
 ### CALL MAIN LOGIC
