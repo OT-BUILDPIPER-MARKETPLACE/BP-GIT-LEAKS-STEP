@@ -488,7 +488,7 @@ function scanCodeForCreds() {
 
     add_event "validation mode" "Successful" "Non-blocking validation" "Scan failed but pipeline continued because VALIDATION_FAILURE_ACTION is not FAILURE"
 
-    generateOutput ${ACTIVITY_SUB_TASK_CODE} true "$FINAL_MESSAGE"
+    generateOutput ${ACTIVITY_SUB_TASK_CODE} false "$FINAL_MESSAGE"  
   fi
   }
 
