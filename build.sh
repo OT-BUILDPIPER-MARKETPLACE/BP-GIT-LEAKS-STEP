@@ -370,6 +370,39 @@ function scanCodeForCreds() {
   # ----------------------------------------
   ERROR_EVENTS=$(echo "$EVENTS" | jq '[to_entries[] | select(.value.status == "Failed") | .key]')
 
+
+  # ----------------------------------------
+  # Send MI if enabled
+  # ----------------------------------------
+
+  if [[ -n "${MI_SERVER_ADDRESS}" ]]; then
+      logInfoMessage "MI_SERVER_ADDRESS: ${MI_SERVER_ADDRESS}"
+      export base64EncodedResponse=$(encodeFileContent cred_scanner_sum.csv)
+      export application=$APPLICATION_NAME
+      export environment=$environment
+      export service=$service
+      export organization=$ORGANIZATION
+      export source_key=$SOURCE_KEY
+      if [[ -z "$REPORT_FILE_PATH" || "$REPORT_FILE_PATH" == "null" ]]; then
+        export report_file_path=""
+      else
+        export report_file_path="$REPORT_FILE_PATH"
+      fi
+      generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
+      response=$(sendMIData gitleaks.mi "${MI_SERVER_ADDRESS}")
+      status=$?
+
+      if [ $status -eq 0 ]; then
+        clean_response=$(echo "$response" | grep -o '{.*}')
+        logInfoMessage "Send MI Data API Response: SUCCESS $clean_response"
+        add_event "send mi data" "Successful" "Send MI Data API Response: SUCCESS" "$response"
+      else
+        clean_response=$(echo "$response" | grep -o '{.*}')
+        logErrorMessage "Send MI Data API Response: FAILED $clean_response"
+        add_event "send mi data" "Failed" "Send MI Data API Response: FAILED" "$response"
+      fi
+    fi
+    
   # ----------------------------------------
   # Map FINAL_STATUS to boolean to match
   # cloning_repository_output.json format
@@ -439,29 +472,6 @@ function scanCodeForCreds() {
     logInfoMessage "Output JSON written to /bp/execution_dir/${GLOBAL_TASK_ID}/$GITLEAKS_OUTPUT_FILE"
     add_event "create output" "Successful" "Output file created" "Structured output written to /bp/execution_dir/${GLOBAL_TASK_ID}/$GITLEAKS_OUTPUT_FILE"
   fi
-
-  # ----------------------------------------
-  # Send MI if enabled
-  # ----------------------------------------
-  if [[ -n "${MI_SERVER_ADDRESS}" ]]; then
-      export base64EncodedResponse=$(encodeFileContent cred_scanner_sum.csv)
-      export application=$APPLICATION_NAME
-      export environment=$environment
-      export service=$service
-      export organization=$ORGANIZATION
-      export source_key=$SOURCE_KEY
-      if [[ -z "$REPORT_FILE_PATH" || "$REPORT_FILE_PATH" == "null" ]]; then
-        export report_file_path=""
-      else
-        export report_file_path="$REPORT_FILE_PATH"
-      fi
-      generateMIDataJson /opt/buildpiper/data/mi.template gitleaks.mi
-      if sendMIData gitleaks.mi "${MI_SERVER_ADDRESS}"; then
-        add_event "send mi data" "Successful" "MI data sent" "Metrics sent to $MI_SERVER_ADDRESS"
-      else
-        add_event "send mi data" "Failed" "MI send error" "Failed to send metrics to $MI_SERVER_ADDRESS"
-      fi
-    fi
 
   cp -rf * "/bp/execution_dir/${GLOBAL_TASK_ID}/"
 
