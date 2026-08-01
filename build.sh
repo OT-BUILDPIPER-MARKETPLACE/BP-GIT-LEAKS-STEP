@@ -58,8 +58,8 @@ GITLEAKS_OUTPUT_FILE="${GITLEAKS_OUTPUT_FILE:-${ACTIVITY_SUB_TASK_CODE}_output.j
 ###############################################
 ### SET DEFAULT FORMAT AND OUTPUT IF NOT SET
 ###############################################
-FORMAT_ARG="${FORMAT_ARG:-json}"
-OUTPUT_ARG="${OUTPUT_ARG:-gitleaks_report.json}"
+FORMAT_ARG="${FORMAT_ARG:-csv}"
+OUTPUT_ARG="${OUTPUT_ARG:-cred_scanner.csv}"
 
 ###############################################
 ### INPUT VALIDATION
@@ -471,9 +471,9 @@ function scanCodeForCreds() {
   else
     logInfoMessage "Output JSON written to /bp/execution_dir/${GLOBAL_TASK_ID}/$GITLEAKS_OUTPUT_FILE"
     add_event "create output" "Successful" "Output file created" "Structured output written to /bp/execution_dir/${GLOBAL_TASK_ID}/$GITLEAKS_OUTPUT_FILE"
-  fi
+  fi 
 
-  cp -rf * "/bp/execution_dir/${GLOBAL_TASK_ID}/"
+  cp "$OUTPUT_ARG" "/bp/execution_dir/${GLOBAL_TASK_ID}/"
 
   # ----------------------------------------
   # Signal pass/fail to BuildPiper pipeline
