@@ -221,28 +221,60 @@ function scanCodeForCreds() {
   # ----------------------------------------
   LOG_OPTS=$(computeLogOpts)
 
-  if [[ -z "$LOG_OPTS" ]]; then
-    logInfoMessage "Performing FULL REPOSITORY SCAN"
-    SCAN_MODE="full"
-    add_event "compute scan mode" "Successful" "Full repository scan" "Scanning entire git history (MAX_COMMITS=$MAX_COMMITS)"
-    GITLEAKS_CMD="gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG -v --redact=90 --source ."
-  else
+if [[ -z "$LOG_OPTS" ]]; then
+
+    # If MAX_COMMITS=1, scan only the latest commit
+    if [[ "$MAX_COMMITS" == "1" ]]; then
+        logInfoMessage "Performing LATEST COMMIT SCAN"
+        SCAN_MODE="latest"
+
+        add_event \
+          "compute scan mode" \
+          "Successful" \
+          "Latest commit scan" \
+          "Scanning latest commit (MAX_COMMITS=1)"
+
+        GITLEAKS_CMD="gitleaks detect --log-opts=HEAD^..HEAD --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG -v --redact=90 --source ."
+
+    else
+        logInfoMessage "Performing FULL REPOSITORY SCAN"
+        SCAN_MODE="full"
+
+        add_event \
+          "compute scan mode" \
+          "Successful" \
+          "Full repository scan" \
+          "Scanning entire git history (MAX_COMMITS=$MAX_COMMITS)"
+
+        GITLEAKS_CMD="gitleaks dir --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG -v --redact=90 ."
+    fi
+
+else
+
     logInfoMessage "Scanning commit range: $LOG_OPTS"
     SCAN_MODE="range"
-    add_event "compute scan mode" "Successful" "Commit range scan" "Scanning commit range: $LOG_OPTS"
-    GITLEAKS_CMD="gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG -v --redact=90 --source . --log-opts=\"$LOG_OPTS\""
-  fi
 
-  # ----------------------------------------
-  # Run gitleaks
-  # ----------------------------------------
-  logInfoMessage "Executing: $GITLEAKS_CMD"
-  if [[ "$DEBUG" == "true" ]]; then
+    add_event \
+      "compute scan mode" \
+      "Successful" \
+      "Commit range scan" \
+      "Scanning commit range: $LOG_OPTS"
+
+    GITLEAKS_CMD="gitleaks detect --exit-code 1 --report-format $FORMAT_ARG --report-path $OUTPUT_ARG -v --redact=90 --source . --log-opts=\"$LOG_OPTS\""
+fi
+
+# ----------------------------------------
+# Run gitleaks
+# ----------------------------------------
+logInfoMessage "Executing: $GITLEAKS_CMD"
+
+if [[ "$DEBUG" == "true" ]]; then
     eval "$GITLEAKS_CMD"
-  else
+else
     eval "$GITLEAKS_CMD" > /dev/null 2>&1
-  fi
-  GITLEAKS_EXIT_CODE=$?
+fi
+
+GITLEAKS_EXIT_CODE=$?
 
 
   # ----------------------------------------
@@ -383,6 +415,7 @@ function scanCodeForCreds() {
       export service=$service
       export organization=$ORGANIZATION
       export source_key=$SOURCE_KEY
+      export url_details=$URL_DETAILS
       if [[ -z "$REPORT_FILE_PATH" || "$REPORT_FILE_PATH" == "null" ]]; then
         export report_file_path=""
       else

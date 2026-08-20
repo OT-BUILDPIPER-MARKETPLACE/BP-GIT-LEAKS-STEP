@@ -45,8 +45,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy files efficiently with correct permissions
 COPY --chown=buildpiper:buildpiper build.sh .
-COPY --chown=buildpiper:buildpiper BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
 COPY --chown=buildpiper:buildpiper BP-BASE-SHELL-STEPS/data /opt/buildpiper/data
+COPY --chown=buildpiper:buildpiper BP-BASE-SHELL-STEPS /opt/buildpiper/shell-functions/
+
 RUN chmod +x build.sh
 
 # ADDITION #3: Create log dir for BP scripts
